@@ -5,4 +5,4 @@ spotipy
 numpy
 opencv-python
 Jinja2
-
+tensorflow
