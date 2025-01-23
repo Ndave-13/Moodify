@@ -58,7 +58,7 @@ async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
-    cap = cv2.VideoCapture(1)
+    cap = cv2.VideoCapture(0)
     if not cap.isOpened():
         await websocket.send_text("Error: Could not open the webcam.")
         return
