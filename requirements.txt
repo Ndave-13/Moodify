@@ -1,3 +1,7 @@
 fastapi
 uvicorn
 pybase64
+spotipy
+numpy
+opencv-python
+tensorflow
