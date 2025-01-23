@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emotion Detection</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <h1>Real-Time Emotion Detection</h1>
+    <div class="container">
+        <div id="video-container">
+            <img id="video-frame" src="" alt="Video Feed">
+        </div>
+        <p id="emotion-text">Emotion: None</p>
+        <button id="generate-recommendations" disabled>Generate Recommendations</button>
+        <div id="recommendations-container"></div>
+    </div>
+    <script>
+        const videoFrame = document.getElementById("video-frame");
+        const emotionText = document.getElementById("emotion-text");
+        const recommendationsContainer = document.getElementById("recommendations-container");
+        const generateRecommendationsButton = document.getElementById("generate-recommendations");
+        let currentEmotion = "";
+        let videoStopped = false;
+
+        const ws = new WebSocket("ws://localhost:8000/ws");
+
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+
+            if (data.image && !videoStopped) {
+                videoFrame.src = `data:image/jpeg;base64,${data.image}`;
+            }
+
+            if (data.emotion && data.emotion !== "Detecting...") {
+                currentEmotion = data.emotion;
+                emotionText.textContent = `Emotion: ${currentEmotion}`;
+                generateRecommendationsButton.disabled = false;
+                videoStopped = true;
+                ws.close(); // Stop the video feed
+            }
+
+            if (data.recommendations) {
+                recommendationsContainer.innerHTML = data.recommendations
+                    .map(
+                        (track) => `
+                            <div class="track">
+                                <p><strong>${track.name}</strong> by ${track.artist}</p>
+                                <a href="${track.url}" target="_blank">Listen on Spotify</a>
+                            </div>
+                        `
+                    )
+                    .join("");
+            }
+        };
+
+        generateRecommendationsButton.addEventListener("click", () => {
+            if (currentEmotion) {
+                const newWs = new WebSocket("ws://localhost:8000/ws");
+                newWs.onopen = () => {
+                    newWs.send(JSON.stringify({ action: "generate_recommendations" }));
+                };
+
+                newWs.onmessage = (event) => {
+                    const data = JSON.parse(event.data);
+                    if (data.recommendations) {
+                        recommendationsContainer.innerHTML = data.recommendations
+                            .map(
+                                (track) => `
+                                    <div class="track">
+                                        <p><strong>${track.name}</strong> by ${track.artist}</p>
+                                        <a href="${track.url}" target="_blank">Listen on Spotify</a>
+                                    </div>
+                                `
+                            )
+                            .join("");
+                    }
+                };
+            }
+        });
+    </script>
+</body>
+</html>
