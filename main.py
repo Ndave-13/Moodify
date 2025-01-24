@@ -17,8 +17,8 @@ model_best = load_model('face_model.h5')
 class_names = ['Angry', 'Disgusted', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral']
 
 # Spotify API setup
-SPOTIPY_CLIENT_ID = "08240ef15cf743c0a3784b440e4250e5"
-SPOTIPY_CLIENT_SECRET = "da9300425a6f460fb2e8678d03a78a79"
+SPOTIPY_CLIENT_ID = "b66c9baebce5453081456d9d994a0c34"
+SPOTIPY_CLIENT_SECRET = "0fa6bd50f09646279c94fcdc297686ba"
 client_credentials_manager = SpotifyClientCredentials(
     client_id=SPOTIPY_CLIENT_ID, client_secret=SPOTIPY_CLIENT_SECRET
 )
