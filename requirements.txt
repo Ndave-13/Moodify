@@ -1,8 +1,8 @@
-fastapi
-uvicorn
-pybase64
+streamlit
 spotipy
 numpy
 opencv-python
-Jinja2
 tensorflow
+cv2
+time
+random
