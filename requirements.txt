@@ -1,6 +1,6 @@
 streamlit
 spotipy
 numpy
-opencv-python==4.11.0.86
-tensorflow==2.8.0
+opencv-python
+tensorflow==2.18.0
 random
