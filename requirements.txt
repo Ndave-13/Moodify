@@ -3,6 +3,5 @@ spotipy
 numpy
 opencv-python
 tensorflow
-cv2
 time
 random
