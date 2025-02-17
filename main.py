@@ -9,6 +9,8 @@ import time
 import random
 import streamlit.components.v1 as components
 
+
+os.system('pip install tensorflow')
 # Load the trained emotion detection model
 model_best = load_model('face_model.h5')
 class_names = ['Angry', 'Disgusted', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral']
