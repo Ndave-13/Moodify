@@ -1,16 +1,15 @@
 import streamlit as st
 import cv2
 import numpy as np
-from tensorflow.keras.models import load_model
-from tensorflow.keras.preprocessing import image
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 import time
 import random
 import streamlit.components.v1 as components
-
-
 os.system('pip install tensorflow')
+
+from tensorflow.keras.models import load_model
+from tensorflow.keras.preprocessing import image
 # Load the trained emotion detection model
 model_best = load_model('face_model.h5')
 class_names = ['Angry', 'Disgusted', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral']
