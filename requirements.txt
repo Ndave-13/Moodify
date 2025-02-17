@@ -2,5 +2,5 @@ streamlit
 spotipy
 numpy
 opencv-python
-tensorflow
+tensorflow==2.10.0
 random
