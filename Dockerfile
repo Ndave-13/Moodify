@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY . /app
 
-RUN pip install --no-cache-dir tensorflow spotipy streamlit numpy opencv-python random
+RUN pip install --no-cache-dir tensorflow spotipy streamlit numpy opencv-python
 
 EXPOSE 8501
 
