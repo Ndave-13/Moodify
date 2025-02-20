@@ -1,7 +1,7 @@
 streamlit
 spotipy
 numpy
-opencv-python
+opencv-python-headless
 tensorflow==2.10.0
 pillow
 db-sqlite3
