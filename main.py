@@ -1,15 +1,27 @@
 import streamlit as st
+import sqlite3
 import cv2
 import numpy as np
+from tensorflow.keras.models import load_model
+from tensorflow.keras.preprocessing import image
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 import time
 import random
 import streamlit.components.v1 as components
-os.system('pip install tensorflow')
 
-from tensorflow.keras.models import load_model
-from tensorflow.keras.preprocessing import image
+# Initialize database
+conn = sqlite3.connect("users.db", check_same_thread=False)
+cursor = conn.cursor()
+cursor.execute("""
+    CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT UNIQUE,
+        password TEXT
+    )
+""")
+conn.commit()
+
 # Load the trained emotion detection model
 model_best = load_model('face_model.h5')
 class_names = ['Angry', 'Disgusted', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral']
@@ -34,10 +46,7 @@ mood_to_category = {
     "Disgusted": "metal",
 }
 
-# Simple user database (Replace this with a real database in production)
-if "users" not in st.session_state:
-    st.session_state.users = {}
-
+# Session state management
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 
@@ -45,31 +54,36 @@ if "current_user" not in st.session_state:
     st.session_state.current_user = ""
 
 def register():
-    """User registration"""
+    """User registration with SQLite"""
     st.title("🔐 Sign Up")
     new_username = st.text_input("Create a Username")
     new_password = st.text_input("Create a Password", type="password")
     confirm_password = st.text_input("Confirm Password", type="password")
     
     if st.button("Register"):
-        if new_username in st.session_state.users:
-            st.error("❌ Username already exists! Try another one.")
-        elif new_password != confirm_password:
+        if new_password != confirm_password:
             st.error("❌ Passwords do not match!")
         elif new_username and new_password:
-            st.session_state.users[new_username] = new_password
-            st.success("✅ Registration successful! You can now log in.")
+            try:
+                cursor.execute("INSERT INTO users (username, password) VALUES (?, ?)", (new_username, new_password))
+                conn.commit()
+                st.success("✅ Registration successful! You can now log in.")
+            except sqlite3.IntegrityError:
+                st.error("❌ Username already exists! Try another one.")
         else:
             st.error("❌ Please fill all fields!")
 
 def login():
-    """User login"""
+    """User login with SQLite"""
     st.title("🔑 Log In")
     username = st.text_input("Username")
     password = st.text_input("Password", type="password")
 
     if st.button("Login"):
-        if username in st.session_state.users and st.session_state.users[username] == password:
+        cursor.execute("SELECT * FROM users WHERE username = ? AND password = ?", (username, password))
+        user = cursor.fetchone()
+
+        if user:
             st.session_state.logged_in = True
             st.session_state.current_user = username
             st.success(f"✅ Welcome, {username}!")
@@ -95,7 +109,7 @@ def get_spotify_recommendations_by_category(category, num_songs):
             st.error("No playlists available.")
             return []
 
-        playlist = random.choice(playlists)  # Pick a random playlist
+        playlist = random.choice(playlists)
         playlist_id = playlist["id"]
         tracks_data = sp.playlist_tracks(playlist_id, limit=50)
 
@@ -104,7 +118,7 @@ def get_spotify_recommendations_by_category(category, num_songs):
             return []
 
         tracks = tracks_data["items"]
-        random.shuffle(tracks)  # Shuffle for randomness
+        random.shuffle(tracks)
 
         recommendations = []
         for track in tracks:
@@ -143,7 +157,6 @@ def main_app():
         logout()
         st.experimental_rerun()
 
-    # Dropdown for selecting the number of songs before emotion detection
     num_songs = st.selectbox("How many songs would you like to listen to?", range(1, 501), index=9)
 
     emotion_label = None
@@ -154,7 +167,7 @@ def main_app():
 
     if detect_button:
         st.write("📸 Capturing your face and detecting emotion...")
-        
+
         cap = cv2.VideoCapture(0)
         face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
@@ -205,13 +218,9 @@ def main_app():
                     st.write(f"🎵 [{track['name']} - {track['artist']}]({track['url']})")
                     song_page(track['url'], track['name'], track['artist'])
 
-# Navigation Handling
+# Navigation
 if st.session_state.logged_in:
     main_app()
 else:
     page = st.sidebar.radio("Navigation", ["Login", "Sign Up"])
-    
-    if page == "Login":
-        login()
-    elif page == "Sign Up":
-        register()
+    login() if page == "Login" else register()
