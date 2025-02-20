@@ -4,4 +4,4 @@ numpy
 opencv-python
 tensorflow==2.10.0
 pillow
-sqlite3
+db-sqlite3
