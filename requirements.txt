@@ -1,6 +1,5 @@
 streamlit
 spotipy
 numpy
-opencv-python
+opencv-python 4.11.0.86
 tensorflow==2.10.0
-cv2
