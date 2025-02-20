@@ -3,4 +3,3 @@ spotipy
 numpy
 opencv-python
 tensorflow==2.10.0
-db-sqlite3
